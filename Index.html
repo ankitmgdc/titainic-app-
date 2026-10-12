@@ -1,1 +1,76 @@
 
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <title>Titanic Survival Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="card">
+        <h2>Titanic Survival Predictor</h2>
+        <p>यात्री की जानकारी भरें और जानें कि वे बच पाते या नहीं।</p>
+
+        <div class="form-group">
+            <label>टिकट क्लास (Pclass):</label>
+            <select id="pclass">
+                <option value="1">Class 1 (लक्जरी)</option>
+                <option value="2">Class 2 (मध्यम)</option>
+                <option value="3" selected>Class 3 (सामान्य)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>लिंग (Gender):</label>
+            <select id="sex">
+                <option value="1">पुरुष (Male)</option>
+                <option value="0">महिला (Female)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>उम्र (Age):</label>
+            <input type="number" id="age" value="25" min="1" max="80">
+        </div>
+
+        <button onclick="sendData()">चेक करें (Predict)</button>
+
+        <div id="result-box" class="hidden">
+            <h3 id="result-text"></h3>
+        </div>
+    </div>
+
+    <script>
+        async function sendData() {
+            const pclass = document.getElementById('pclass').value;
+            const sex = document.getElementById('sex').value;
+            const age = document.getElementById('age').value;
+
+            // डेटा को बैकएंड (Flask API) में भेजना
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ pclass: pclass, sex: sex, age: age })
+            });
+
+            const data = await response.json();
+            const resultBox = document.getElementById('result-box');
+            const resultText = document.getElementById('result-text');
+
+            resultBox.classList.remove('hidden');
+
+            // तुरंत रिजल्ट दिखाना (1 या 0)
+            if (data.result === 1) {
+                resultBox.className = "success";
+                resultText.innerHTML = "परिणाम: 1 - यात्री बच गया (Survived)! 🎉";
+            } else {
+                resultBox.className = "error";
+                resultText.innerHTML = "परिणाम: 0 - यात्री नहीं बच पाया (Did not survive). ⚠️";
+            }
+        }
+    </script>
+</body>
+</html>
